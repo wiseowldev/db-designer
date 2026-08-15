@@ -14,3 +14,9 @@ User types/pastes DBML in the text pane; the store updates to match.
 ## Done when
 - Pasting a non-trivial DBML sample (multiple tables, a few refs, PK/unique/not-null modifiers) into the editor populates the store correctly, verified by logging the resulting `Schema`.
 - Typing invalid DBML doesn't crash or clear existing state; it shows an error and recovers once the syntax is fixed.
+
+## Status: implemented
+
+`src/dbml/parse.ts#parseDbml` (async) lazy-loads `@dbml/core` (it's multi-MB and bundles dialects this app doesn't use — see the comment there) and converts via `new Parser().parse(source, 'dbmlv2').export()`, then maps the exported database into `Schema`, generating fresh IDs and grid positions (`src/lib/layout.ts#gridPosition`) per table on every parse. Errors come back typed (`DbmlParseError[]` with line/column) by catching `@dbml/core`'s `CompilerError`.
+
+Editor wiring lives in `src/components/DbmlEditor.tsx` (CodeMirror via `@uiw/react-codemirror`, generic SQL grammar): text is local component state, debounced 300ms (`PARSE_DEBOUNCE_MS`) into `parseDbml`, with a request-ID guard against out-of-order async results if the user types faster than the debounce. On success, `loadSchema(schema, 'editor')`; on failure, the last-good schema stays in the store and errors render in a status bar under the editor (not inline gutter markers — the plan's gutter-marker option wasn't used). A hardcoded `STARTER_DBML` sample seeds a genuinely fresh session (no restored schema).

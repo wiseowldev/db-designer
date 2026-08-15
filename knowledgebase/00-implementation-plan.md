@@ -1,6 +1,37 @@
 # Implementation Plan
 
-Client-only DBML ⇄ visual schema designer. No backend — see [CLAUDE.md](../CLAUDE.md) for the project brief and current repo state (stock Vite+React+TS template, nothing else installed yet).
+Client-only DBML ⇄ visual schema designer. No backend — see [CLAUDE.md](../CLAUDE.md) for the project brief and current architecture.
+
+## Status: all 9 steps implemented
+
+This plan's steps 1–9 are all built and working end-to-end. See each step file for what was actually done (their "Status" sections) versus what was originally planned. As-built file map:
+
+| Area | Files |
+|---|---|
+| Schema types | `src/types/schema.ts` |
+| Store (state + undo/redo + autosave) | `src/store/schemaStore.ts` |
+| DBML parse (text → Schema) | `src/dbml/parse.ts` |
+| DBML print (Schema → text) | `src/dbml/print.ts` |
+| File import/export (disk) | `src/dbml/file.ts`, `src/lib/exportSchema.ts` |
+| DBML editor pane | `src/components/DbmlEditor.tsx` |
+| Diagram canvas | `src/components/Canvas.tsx` |
+| Table node (rename, add/edit/delete fields) | `src/components/TableNode.tsx`, `src/components/FieldEditor.tsx` |
+| Relationship edges (cardinality edit) | `src/components/RelationEdge.tsx` |
+| Toolbar (add table, import/export, undo/redo) | `src/components/Toolbar.tsx` |
+| Layout (grid placement for new/positionless tables) | `src/lib/layout.ts` |
+| Error boundaries | `src/components/ErrorBoundary.tsx` |
+
+## Ideas for future work
+
+Not required by any step's original "done when" bar, but worth considering for future improvement work:
+
+- **Type compatibility on connect**: `Canvas.tsx`'s `onConnect` accepts any field-to-field connection regardless of type; step 7 flagged this as a nice-to-have.
+- **`Field.default` round-trip fidelity**: see the note in [CLAUDE.md](../CLAUDE.md#actual-design-dbmldiagram-sync) — `formatDefault` in `src/dbml/print.ts` infers literal syntax by regex rather than storing it, so some default-value round trips change surface syntax.
+- **Auto-layout**: only a naive row-cascade grid (`src/lib/layout.ts`) exists; no layout pass considers relationships to reduce edge crossings for large schemas.
+- **Large-schema performance**: not stress-tested; step 9 flagged canvas/editor responsiveness with many tables as an open question.
+- **CodeMirror DBML syntax**: the editor uses the generic SQL grammar (`@codemirror/lang-sql`), not a DBML-specific one — no DBML-aware syntax highlighting or autocomplete.
+- **Crow's-foot edge notation**: `RelationEdge.tsx` renders cardinality as a plain text label (`1-1`/`1-n`/etc.), not graphical crow's-foot notation.
+- **Dark mode / theme**: `DbmlEditor.tsx` is hardcoded to `githubLight`.
 
 ## Sequencing
 

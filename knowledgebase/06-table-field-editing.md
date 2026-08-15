@@ -13,3 +13,9 @@ Let users create and modify schema structure directly on the canvas, not just vi
 ## Done when
 - A user can build a small schema (3-4 tables, several fields each) entirely by clicking on the canvas, with the DBML pane updating live to match.
 - Deleting a table used in a ref removes or flags the dangling ref (decide behavior — likely: delete the ref too, and say so in the confirm dialog).
+
+## Status: implemented
+
+Toolbar's "Add table" (`src/components/Toolbar.tsx#handleAddTable`) creates a table at the next grid slot with one default `id`/`int`/`pk` field. `TableNode.tsx`: table name is inline-editable (click to reveal an `Input`, blur/Enter commits, Escape reverts); each `FieldRow` opens a `Popover` → `FieldEditor.tsx` (name/type inputs, PK/increment/unique/notNull checkboxes, a remove-field button) on click, matching the plan's "popover, not modal" call. "Add field" appends a default `untitled_field`/`varchar`.
+
+Delete-table uses a shadcn `Dialog` (`DeleteTableButton` in `TableNode.tsx`), not a native `confirm()`, explicitly stating in the dialog body that connected relationships are also deleted — matches the plan's chosen behavior (delete cascading refs, not just flag them; `store.removeTable` filters `refs` by `fromTableId`/`toTableId`). Deleting a field similarly cascades: `store.removeField` filters out any `Ref` referencing that field.

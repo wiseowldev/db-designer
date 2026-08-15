@@ -13,3 +13,9 @@ The store's `Schema` renders as a live ERD on the canvas — this closes the fir
 ## Done when
 - Importing DBML from step 3 shows a diagram with correctly positioned tables (even if just auto-cascaded), all fields listed, and edges connecting the right fields with correct direction.
 - Dragging a table around the canvas doesn't yet need to persist (that's step 5) but shouldn't crash or fight React Flow's internal state.
+
+## Status: implemented
+
+`@xyflow/react` (React Flow's current package) is used. `src/components/TableNode.tsx` is the custom `table` node type: name + field rows with PK/FK/AI/UQ/NN badges (`fieldBadges`). `src/components/RelationEdge.tsx` is the custom `relation` edge type — cardinality renders as a plain text label (`1-1`/`1-n`/etc.), not crow's-foot notation (the plan called simple labels acceptable for v1).
+
+`Canvas.tsx` derives nodes/edges from the store with `useMemo` (`schema.tables → Node[]`, `schema.refs → Edge[]`), then reconciles them into React Flow's own `useNodesState`/`useEdgesState` local state via an effect — local state is kept because React Flow needs smooth in-progress drag/selection state that the store doesn't track; the reconciliation preserves an in-progress drag's position and an edge's `selected` flag rather than clobbering them with the store-derived value. `Background`/`Controls`/`MiniMap` are present, plus `fitView` on mount and an empty-state hint overlay when there are no tables.

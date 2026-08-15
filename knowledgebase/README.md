@@ -1,5 +1,5 @@
 # Knowledgebase
 
-Implementation plan and design notes for the DB schema designer. Read [00-implementation-plan.md](./00-implementation-plan.md) first — it's the index and sequencing for everything else here.
+Implementation history and design notes for the DB schema designer. All 9 steps below are implemented — read [00-implementation-plan.md](./00-implementation-plan.md) first for the as-built file map and a list of follow-on work ideas for future agents.
 
-Each step file is meant to be actionable on its own: goal, what to build, and a rough "done when" bar. Update these as reality diverges from the plan — this is a living plan, not a spec to follow blindly.
+Each step file records the original goal/plan alongside a **Status** section noting what actually got built and where (file paths), plus any deviations from the original plan and remaining ideas specific to that step. Treat these as an as-built reference and a source of "why is it built this way," not a to-do list — update a step's Status section when you materially change that area, the same way you'd update a doc alongside the code.

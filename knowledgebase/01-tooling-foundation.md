@@ -22,3 +22,7 @@ Get from the stock Vite template to a styled, componentized shell ready for feat
 ## Done when
 - `bun run dev` shows a resizable two-pane shell (empty editor + empty canvas) styled with Tailwind/shadcn, no leftover template content.
 - `bun run build` and `bun run lint` still pass.
+
+## Status: implemented
+
+Tailwind v4 + shadcn/ui (on `@base-ui/react` primitives, not Radix) are installed. Layout is `src/App.tsx`: `ResizablePanelGroup` split between `DbmlEditor` and `Canvas`, each wrapped in its own `ErrorBoundary`, with `Toolbar` above. `src/components/ui/` has `button`, `checkbox`, `dialog`, `input`, `label`, `popover`, `resizable`, `select`, `tooltip`. Folder structure matches the plan (`components/`, `components/ui/`, `store/`, `dbml/`, `types/`, plus `lib/` for small shared helpers like `layout.ts`/`id.ts`/`utils.ts`).
