@@ -1,32 +1,30 @@
-# React + TypeScript + Vite
+# DB Designer
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+![DB Designer screenshot](docs/img/example.png)
 
-Currently, two official plugins are available:
+A browser-only database schema design tool. Write [DBML](https://dbml.dbdiagram.io/docs/) and watch a visual ER diagram appear, or build the schema directly on the canvas and watch the DBML update to match — the two stay in sync in both directions. No backend, no accounts: everything runs client-side, and schemas are saved to your browser and exported to/imported from local `.dbml` files.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **DBML ⇄ diagram sync** — edit DBML text or the diagram; both update to match, backed by a single normalized schema store.
+- **Visual table & field editing** — add/rename/delete tables and fields, toggle primary key / auto-increment / unique / not-null, all from the canvas.
+- **Relationships** — draw foreign keys by dragging between fields, edit cardinality (`1-1`, `1-n`, `n-1`, `n-n`) from the diagram.
+- **Import/export** — save and load `.dbml` files to/from local disk.
+- **Autosave & undo/redo** — your schema persists across reloads; undo/redo covers both diagram edits and DBML text edits.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech stack
 
-## Expanding the Oxlint configuration
+React, TypeScript, and Vite, styled with Tailwind CSS and shadcn/ui. [React Flow](https://reactflow.dev/) powers the diagram canvas, [Zustand](https://zustand.docs.pmnd.rs/) holds the schema state (with [zundo](https://github.com/charkour/zundo) for undo/redo), and [@dbml/core](https://www.dbml.org/) handles DBML parsing.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Getting started
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+This project uses [Bun](https://bun.sh/).
+
+```bash
+bun install
+bun run dev       # start the dev server
+bun run build     # type-check and build for production
+bun run lint      # run oxlint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+See [CLAUDE.md](CLAUDE.md) for architecture notes and [knowledgebase/](knowledgebase/) for the implementation plan.
