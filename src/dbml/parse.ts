@@ -1,5 +1,6 @@
 import type { Database } from '@dbml/core'
 import { createId } from '@/lib/id'
+import { gridPosition } from '@/lib/layout'
 import type { Field, RefRelation, Schema, Table } from '@/types/schema'
 
 type ExportedDatabase = ReturnType<Database['export']>
@@ -21,10 +22,6 @@ export type DbmlParseError = {
 export type DbmlParseResult =
   | { ok: true; schema: Schema }
   | { ok: false; errors: DbmlParseError[] }
-
-const TABLES_PER_ROW = 4
-const TABLE_COLUMN_WIDTH = 280
-const TABLE_ROW_HEIGHT = 240
 
 function relationSide(relation: string): '1' | 'n' {
   return relation === '1' ? '1' : 'n'
@@ -87,6 +84,7 @@ export async function parseDbml(source: string): Promise<DbmlParseResult> {
           pk: f.pk || undefined,
           unique: f.unique || undefined,
           notNull: f.not_null || undefined,
+          increment: f.increment || undefined,
           default: defaultToString(f.dbdefault),
           note: f.note || undefined,
         }
@@ -96,10 +94,7 @@ export async function parseDbml(source: string): Promise<DbmlParseResult> {
         id: tableId,
         name: t.name,
         note: t.note || undefined,
-        position: {
-          x: (tablePosition % TABLES_PER_ROW) * TABLE_COLUMN_WIDTH,
-          y: Math.floor(tablePosition / TABLES_PER_ROW) * TABLE_ROW_HEIGHT,
-        },
+        position: gridPosition(tablePosition),
         fields,
       }
       tablePosition += 1

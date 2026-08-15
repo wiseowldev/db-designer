@@ -3,6 +3,7 @@ import CodeMirror from '@uiw/react-codemirror'
 import { sql } from '@codemirror/lang-sql'
 import { githubLight } from '@uiw/codemirror-theme-github'
 import { parseDbml, type DbmlParseError } from '@/dbml/parse'
+import { schemaToDbml } from '@/dbml/print'
 import { useSchemaStore } from '@/store/schemaStore'
 
 const PARSE_DEBOUNCE_MS = 300
@@ -24,19 +25,39 @@ Ref: posts.author_id > users.id
 
 export function DbmlEditor() {
   const loadSchema = useSchemaStore((s) => s.loadSchema)
-  const [text, setText] = useState(STARTER_DBML)
+  const schema = useSchemaStore((s) => s.schema)
+  const origin = useSchemaStore((s) => s.origin)
+  // If the store already has a schema at mount (restored from localStorage), show
+  // it instead of the starter template — don't clobber a returning user's work.
+  const [text, setText] = useState(() =>
+    schema.tables.length > 0 ? schemaToDbml(schema) : STARTER_DBML,
+  )
   const [errors, setErrors] = useState<DbmlParseError[] | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Guards against out-of-order async parse results when the user types faster than PARSE_DEBOUNCE_MS.
   const latestRequestId = useRef(0)
 
-  // Seed the store with the starter schema on mount.
+  // Seed the store with the starter schema on mount, but only for a genuinely
+  // fresh session — a restored schema is already in the store.
   useEffect(() => {
-    parseDbml(text).then((result) => {
-      if (result.ok) loadSchema(result.schema)
+    if (schema.tables.length > 0) return
+    parseDbml(STARTER_DBML).then((result) => {
+      if (result.ok) loadSchema(result.schema, 'editor')
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // When the schema changed for a reason other than "the user is typing DBML"
+  // (a diagram edit, an import), re-print it into the editor. Skip when the
+  // change originated here — the store update we just caused by parsing is not
+  // a reason to reformat the text out from under the user's cursor.
+  useEffect(() => {
+    if (origin === 'editor' || origin === 'init') return
+    const printed = schemaToDbml(schema)
+    setErrors(null)
+    setText((current) => (current === printed ? current : printed))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schema, origin])
 
   function handleChange(value: string) {
     setText(value)
@@ -47,7 +68,7 @@ export function DbmlEditor() {
         if (requestId !== latestRequestId.current) return
         if (result.ok) {
           setErrors(null)
-          loadSchema(result.schema)
+          loadSchema(result.schema, 'editor')
         } else {
           // Keep the last-good schema in the store; only surface the error.
           setErrors(result.errors)

@@ -5,6 +5,7 @@ export type Field = {
   pk?: boolean
   unique?: boolean
   notNull?: boolean
+  increment?: boolean
   default?: string
   note?: string
 }
